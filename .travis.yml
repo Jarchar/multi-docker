@@ -2,16 +2,17 @@ sudo: required
 services:
     - docker
 before_install:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID"  --password-stdin
     - docker build -t bebeverido/react-test -f ./client/Dockerfile.dev ./client
 
 script:
     - docker run -e CI=true bebeverido/react-test npm test 
 after_sucess:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID"  --password-stdin
     - docker build -t bebeverido/multi-client ./client
     - docker build -t bebeverido/multi-nginx ./nginx
     - docker build -t bebeverido/multi-server ./server
     - docker build -t bebeverido/multi-worker ./worker
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID"  --password-stdin
     - docker push bebeverido/multi-client
     - docker push bebeverido/multi-nginx 
     - docker push bebeverido/multi-server
